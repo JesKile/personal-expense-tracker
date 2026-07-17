@@ -136,6 +136,9 @@ function handleGetExpenses(req, res, query) {
   if (query.month) {
     expenses = expenses.filter((exp) => exp.date.startsWith(query.month));
   }
+  if (query.year) {
+  expenses = expenses.filter((exp) => exp.date.startsWith(query.year));
+}
   if (query.category) {
     expenses = expenses.filter(
       (exp) => exp.category.toLowerCase() === query.category.toLowerCase()
