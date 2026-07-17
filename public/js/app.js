@@ -3,7 +3,7 @@
  * -------------------------------------------
  * Handles two dynamic, backend-driven interactions:
  *   1. Adding a new expense (POST /api/expenses)
- *   2. Filtering expenses by month/category (GET /api/expenses?...)
+ *   2. Filtering expenses by month/year/category (GET /api/expenses?...)
  * Plus supporting features: loading the list, showing totals,
  * and deleting an expense (DELETE /api/expenses/:id).
  */
@@ -16,6 +16,7 @@ const totalAmountEl = document.getElementById("total-amount");
 const expenseCountEl = document.getElementById("expense-count");
 
 const filterMonth = document.getElementById("filter-month");
+const filterYear = document.getElementById("filter-year");
 const filterCategory = document.getElementById("filter-category");
 const clearFiltersBtn = document.getElementById("clear-filters");
 
@@ -36,8 +37,23 @@ function formatDate(dateStr) {
 function buildFilterQuery() {
   const params = new URLSearchParams();
   if (filterMonth.value) params.set("month", filterMonth.value);
+  if (filterYear.value) params.set("year", filterYear.value);
   if (filterCategory.value) params.set("category", filterCategory.value);
   return params.toString();
+}
+
+/**
+ * Fills the "Filter by year" dropdown with the last 5 years
+ * (including the current year) so the user can pick one.
+ */
+function populateYearFilter() {
+  const currentYear = new Date().getFullYear();
+  for (let y = currentYear; y >= currentYear - 4; y--) {
+    const option = document.createElement("option");
+    option.value = y;
+    option.textContent = y;
+    filterYear.appendChild(option);
+  }
 }
 
 // ---------------------------------------------------------------
@@ -125,10 +141,12 @@ function showFormMessage(text, type) {
 // ---------------------------------------------------------------
 
 filterMonth.addEventListener("change", loadExpenses);
+filterYear.addEventListener("change", loadExpenses);
 filterCategory.addEventListener("change", loadExpenses);
 
 clearFiltersBtn.addEventListener("click", () => {
   filterMonth.value = "";
+  filterYear.value = "";
   filterCategory.value = "";
   loadExpenses();
 });
@@ -152,4 +170,7 @@ expenseList.addEventListener("click", async (e) => {
 // Initial load
 // ---------------------------------------------------------------
 
-document.addEventListener("DOMContentLoaded", loadExpenses);
+document.addEventListener("DOMContentLoaded", () => {
+  populateYearFilter();
+  loadExpenses();
+});
